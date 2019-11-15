@@ -1,8 +1,10 @@
 package com.paulinaherra.assigment.service;
 
 import com.paulinaherra.assigment.api.v1.response.DiffResponse;
-import com.paulinaherra.assigment.data.DiffRepository;
 import com.paulinaherra.assigment.model.Diff;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -12,19 +14,21 @@ import reactor.core.publisher.Mono;
 import static com.paulinaherra.assigment.api.v1.response.Status.EQUAL;
 import static com.paulinaherra.assigment.api.v1.response.Status.EQUAL_SIZE;
 import static com.paulinaherra.assigment.api.v1.response.Status.NOT_EQUAL_SIZE;
+import static org.springframework.data.mongodb.core.query.Query.query;
+import static org.springframework.data.mongodb.core.query.Update.update;
 
 @Service
 public class DiffServiceImpl implements DiffService {
 
-  private final DiffRepository repository;
+  private final ReactiveMongoTemplate mongoTemplate;
 
-  public DiffServiceImpl(DiffRepository repository) {
-    this.repository = repository;
+  public DiffServiceImpl(ReactiveMongoTemplate mongoTemplate) {
+    this.mongoTemplate = mongoTemplate;
   }
 
   @Override
   public Mono<DiffResponse> getDiff(String id) {
-    return repository.findById(id)
+    return mongoTemplate.findById(id, Diff.class)
       .flatMap(diff -> {
         DiffResponse diffResponse = new DiffResponse();
 
@@ -47,21 +51,18 @@ public class DiffServiceImpl implements DiffService {
 
   @Override
   public void saveLeft(String id, String data) {
-    repository.findById(id)
-      .flatMap(diff -> {
-        return repository.save(diff.setLeft(data).setId(id));
-        })
-      .switchIfEmpty(repository.save(new Diff().setLeft(data).setId(id)));
-
+    mongoTemplate.findAndModify(query(Criteria.where("id").is(id)), update("right", data).setOnInsert("id", id),
+      new FindAndModifyOptions().upsert(true).returnNew(true), Diff.class)
+      .log()
+      .subscribe(System.out::println);
   }
 
   @Override
   public void saveRight(String id, String data) {
-    repository.findById(id)
-      .flatMap(diff -> {
-        return repository.save(diff.setRight(data).setId(id));
-      })
-      .switchIfEmpty(repository.save(new Diff().setRight(data).setId(id)));
+    mongoTemplate.findAndModify(query(Criteria.where("id").is(id)), update("right", data).setOnInsert("id", id),
+      new FindAndModifyOptions().upsert(true).returnNew(true), Diff.class)
+      .log()
+      .subscribe(System.out::println);
   }
 
 }

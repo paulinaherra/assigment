@@ -13,17 +13,3 @@ services:
       - 27017:27017
     volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-
-  assigment-app:
-    container_name: assigment-app
-    network_mode: bridge
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: assigment-app:latest
-    ports:
-      - 8080:8080
-    expose:
-      - 8888
-    links:
-      - assigment-mongodb
