@@ -2,10 +2,8 @@ package com.paulinaherra.assigment.api.v1;
 
 import com.paulinaherra.assigment.api.v1.request.DiffRequest;
 import com.paulinaherra.assigment.service.DiffService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -27,7 +25,7 @@ public class DiffApiTest {
   private DiffService service;
 
   @BeforeEach
-  public void setUp (){
+  public void setUp() {
     MockitoAnnotations.initMocks(this);
   }
 

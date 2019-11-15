@@ -2,7 +2,6 @@ package com.paulinaherra.assigment.api.v1;
 
 import com.paulinaherra.assigment.api.v1.request.DiffRequest;
 import com.paulinaherra.assigment.api.v1.response.DiffResponse;
-import com.paulinaherra.assigment.model.Diff;
 import com.paulinaherra.assigment.service.DiffService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,14 +33,9 @@ public class DiffApi {
     return diffService.getDiff(id);
   }
 
-  @PostMapping(value = "/{id}/right")
-  private void saveRight(@PathVariable String id, @RequestBody @Valid DiffRequest diffRequest) {
-    diffService.saveRight(id, diffRequest.getData());
-  }
-
-  @PostMapping("/{id}/left")
-  private void saveLeft(@PathVariable String id, @RequestBody @Valid DiffRequest diffRequest) {
-    diffService.saveLeft(id, diffRequest.getData());
+  @PostMapping("/{id}/{side}")
+  private void saveOrUpdate(@PathVariable String id, @PathVariable String side, @RequestBody @Valid DiffRequest diffRequest) {
+    diffService.save(id, diffRequest.getData(), side);
   }
 
 }

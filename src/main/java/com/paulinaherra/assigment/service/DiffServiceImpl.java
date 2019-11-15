@@ -9,22 +9,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-import static com.paulinaherra.assigment.api.v1.response.Status.EQUAL;
-import static com.paulinaherra.assigment.api.v1.response.Status.EQUAL_SIZE;
-import static com.paulinaherra.assigment.api.v1.response.Status.NOT_EQUAL_SIZE;
+import static com.paulinaherra.assigment.api.v1.response.Result.EQUAL;
+import static com.paulinaherra.assigment.api.v1.response.Result.EQUAL_SIZE;
+import static com.paulinaherra.assigment.api.v1.response.Result.NOT_EQUAL_SIZE;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
 
 @Service
+@RequiredArgsConstructor
 public class DiffServiceImpl implements DiffService {
 
   private final ReactiveMongoTemplate mongoTemplate;
-
-  public DiffServiceImpl(ReactiveMongoTemplate mongoTemplate) {
-    this.mongoTemplate = mongoTemplate;
-  }
 
   @Override
   public Mono<DiffResponse> getDiff(String id) {
@@ -33,36 +31,38 @@ public class DiffServiceImpl implements DiffService {
         DiffResponse diffResponse = new DiffResponse();
 
         if (StringUtils.isEmpty(diff.getRight()) || StringUtils.isEmpty(diff.getLeft()) || diff.getRight().length() != diff.getLeft().length()) {
-          diffResponse.setStatus(NOT_EQUAL_SIZE);
+          diffResponse.setResult(NOT_EQUAL_SIZE);
           return Mono.just(diffResponse);
         }
-
         if (diff.getRight().equals(diff.getLeft())) {
-          diffResponse.setStatus(EQUAL);
+          diffResponse.setResult(EQUAL);
           return Mono.just(diffResponse);
         }
 
-        int strOffset = diff.getRight().length() - diff.getLeft().length();
-
-        return Mono.just(diffResponse.setLength(diff.getRight().length()).setStatus(EQUAL_SIZE).setOffset(strOffset));
+        return Mono.just(diffResponse
+          .setLength(diff.getRight().length())
+          .setResult(EQUAL_SIZE)
+          .setOffset(getIndexOfDifference(diff.getLeft(), diff.getRight())));
       })
       .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
   }
 
   @Override
-  public void saveLeft(String id, String data) {
-    mongoTemplate.findAndModify(query(Criteria.where("id").is(id)), update("right", data).setOnInsert("id", id),
+  public void save(String id, String data, String side) {
+    mongoTemplate.findAndModify(query(Criteria.where("id").is(id)), update(side, data).setOnInsert("id", id),
       new FindAndModifyOptions().upsert(true).returnNew(true), Diff.class)
       .log()
       .subscribe(System.out::println);
   }
 
-  @Override
-  public void saveRight(String id, String data) {
-    mongoTemplate.findAndModify(query(Criteria.where("id").is(id)), update("right", data).setOnInsert("id", id),
-      new FindAndModifyOptions().upsert(true).returnNew(true), Diff.class)
-      .log()
-      .subscribe(System.out::println);
+  private int getIndexOfDifference(String left, String right) {
+    int i = 0;
+    for (i = 0; i < left.length() && i < left.length(); ++i) {
+      if (left.charAt(i) != right.charAt(i)) {
+        break;
+      }
+    }
+    return i;
   }
 
 }

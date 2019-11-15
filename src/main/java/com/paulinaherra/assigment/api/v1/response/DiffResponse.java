@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
 @JsonInclude(Include.NON_NULL)
 public class DiffResponse {
 
-  private Status status;
+  private Result result;
   private Integer offset;
   private Integer length;
 

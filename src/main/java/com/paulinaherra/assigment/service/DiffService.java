@@ -7,8 +7,5 @@ public interface DiffService {
 
   Mono<DiffResponse> getDiff(String id);
 
-  void saveLeft(String id, String data);
-
-  void saveRight(String id, String data);
-
+  void save(String id, String data, String side);
 }
