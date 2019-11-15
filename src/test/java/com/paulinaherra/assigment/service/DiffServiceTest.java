@@ -34,6 +34,16 @@ class DiffServiceTest {
   }
 
   @Test
+  void getDiffNotFound() {
+    when(template.findById("id", Diff.class)).thenReturn(Mono.empty());
+
+    StepVerifier
+      .create(diffService.getDiff("id"))
+      .expectError()
+      .verify();
+  }
+
+  @Test
   void getDiffEqual() {
     Diff diff = new Diff();
     diff.setLeft("ewogICAgZGF0YTogInRoaXMgaXMgYSBqc29uIgp9");

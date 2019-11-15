@@ -57,7 +57,7 @@ public class DiffServiceImpl implements DiffService {
 
   private int getIndexOfDifference(String left, String right) {
     int i = 0;
-    for (i = 0; i < left.length() && i < left.length(); ++i) {
+    for (i = 0; i < left.length() && i < right.length(); ++i) {
       if (left.charAt(i) != right.charAt(i)) {
         break;
       }
