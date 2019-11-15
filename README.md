@@ -1,14 +1,14 @@
 # Assignment
 
-##Env
+#Env
 `Database: Mongo 4.2
 `Java: 1.8`
 `Spring Boot 2.2.1.RELEASE`
 
-##Docker
+#Docker
 `docker-compose up -d`
 
-##Actuator
+#Actuator
 http://localhost:8080/actuator
 
 #API
