@@ -1,7 +1,7 @@
 # Assignment
 
 #Env
-`Database: Mongo 4.2
+`Database: Mongo 4.2`
 `Java: 1.8`
 `Spring Boot 2.2.1.RELEASE`
 
