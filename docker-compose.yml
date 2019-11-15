@@ -1,0 +1,29 @@
+version: '3'
+services:
+  assigment-mongodb:
+    container_name: assigment-mongodb
+    image: mongo:4.2
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: mydatabase
+    network_mode: bridge
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  assigment-app:
+    container_name: assigment-app
+    network_mode: bridge
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: assigment-app:latest
+    ports:
+      - 8080:8080
+    expose:
+      - 8888
+    links:
+      - assigment-mongodb
